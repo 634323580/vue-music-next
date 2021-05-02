@@ -20,69 +20,173 @@
       <div class="bottom">
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i @click="changeMode" :class="modeIcon"></i>
           </div>
-          <div class="icon i-left">
-            <i class="icon-prev"></i>
+          <div class="icon i-left" :class="disableCls">
+            <i @click="prev" class="icon-prev"></i>
           </div>
-          <div @click="togglePlay" class="icon i-center">
-            <i :class="playIcon"></i>
+          <div class="icon i-center" :class="disableCls">
+            <i @click="togglePlay" :class="playIcon"></i>
+          </div>
+          <div class="icon i-right" :class="disableCls">
+            <i  @click="next" class="icon-next"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-next"></i>
-          </div>
-          <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
+            <i
+              @click="toggleFavorite(currentSong)"
+              :class="getFavoriteIcon(currentSong)"
+            >
+            </i>
           </div>
         </div>
       </div>
     </div>
-    <audio ref="audioRef" @pause="pause"></audio>
+    <audio
+      ref="audioRef"
+      @pause="pause"
+      @canplay="ready"
+      @error="error">
+    </audio>
   </div>
 </template>
 
 <script>
 import { useStore } from 'vuex'
 import { computed, watch, ref } from 'vue'
+import useMode from './use-mode'
+import useFavorite from './use-favorite'
 export default {
   name: 'player',
   setup() {
     const audioRef = ref(null)
+    const songReady = ref(false)
 
     // 获取vuex store
     const store = useStore()
+    // 播放器状态 true=>全屏 false=>收起
     const fullScreen = computed(() => store.state.fullScreen)
+    // 当前播放的歌曲
     const currentSong = computed(() => store.getters.currentSong)
+    // 播放状态 true=>播放 false=>暂停
     const playing = computed(() => store.state.playing)
+    // 当前播放歌曲索引
+    const currentIndex = computed(() => store.state.currentIndex)
 
+    // 播放模式hooks
+    const { modeIcon, changeMode } = useMode()
+    // 收藏hooks
+    const { getFavoriteIcon, toggleFavorite } = useFavorite()
+
+    // 播放列表
+    const playList = computed(() => store.state.playList)
+
+    // 播放按钮icon
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
     })
 
+    const disableCls = computed(() => {
+      return songReady.value ? '' : 'disable'
+    })
+
+    // 监听播放歌曲切换
     watch(currentSong, (newSong) => {
       if (!newSong.id || !newSong.url) {
         return
       }
+      songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
     })
 
+    // 监听播放状态
     watch(playing, (newPlaying) => {
+      if (!songReady.value) {
+        return
+      }
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
 
+    // 收起播放器
     function goBack() {
       store.commit('setFullScreen', false)
     }
 
+    // 切换播放状态
     function togglePlay() {
+      if (!songReady.value) {
+        return
+      }
       store.commit('setPlayingState', !playing.value)
     }
 
+    // 暂停播放
     function pause() {
       store.commit('setPlayingState', false)
+    }
+
+    // 下一首
+    function prev() {
+      const list = playList.value
+      // 播放列表没有歌或者缓冲没有准备好
+      if (!songReady.value || !list.length) {
+        return
+      }
+      // 播放列表如果只有一首歌，则循环播放
+      if (list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value - 1
+        if (index === -1) {
+          index = list.length - 1
+        }
+        store.commit('setCurrentIndex', index)
+        if (!playing.value) {
+          store.commit('setPlayingState', true)
+        }
+      }
+    }
+
+    // 上一首
+    function next() {
+      const list = playList.value
+      // 播放列表没有歌或者缓冲没有准备好
+      if (!songReady.value || !list.length) {
+        return
+      }
+      // 播放列表如果只有一首歌，则循环播放
+      if (list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value + 1
+        if (index === list.length) {
+          index = 0
+        }
+        store.commit('setCurrentIndex', index)
+        if (!playing.value) {
+          store.commit('setPlayingState', true)
+        }
+      }
+    }
+
+    // 循环播放
+    function loop() {
+      const audioEl = audioRef.value
+      audioEl.currentTime = 0
+      audioEl.play()
+    }
+
+    function ready() {
+      if (songReady.value) {
+        return
+      }
+      songReady.value = true
+    }
+
+    function error() {
+      songReady.value = true
     }
 
     return {
@@ -90,9 +194,20 @@ export default {
       fullScreen,
       currentSong,
       playIcon,
+      disableCls,
       goBack,
       togglePlay,
-      pause
+      pause,
+      prev,
+      next,
+      ready,
+      error,
+      // mode
+      modeIcon,
+      changeMode,
+      // favorite
+      getFavoriteIcon,
+      toggleFavorite
     }
   }
 }
