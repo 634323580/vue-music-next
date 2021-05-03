@@ -17,6 +17,23 @@
         <h1 class="title">{{currentSong.name}}</h1>
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
+      <div class="middle">
+        <div class="middle-l">
+          <div class="cd-wrapper">
+            <div
+              ref="cdRef"
+              class="cd"
+            >
+              <img
+                ref="cdImageRef"
+                class="image"
+                :class="cdCls"
+                :src="currentSong.pic"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="bottom">
         <div class="progress-wrapper">
           <span class="time time-l">{{formatTime(currentTime)}}</span>
@@ -70,6 +87,7 @@ import { useStore } from 'vuex'
 import { computed, watch, ref } from 'vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import useCd from './use-cd'
 import ProgressBar from './progress-bar'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/constant'
@@ -96,10 +114,13 @@ export default {
     const currentIndex = computed(() => store.state.currentIndex)
     // 当前播放模式
     const playMode = computed(() => store.state.playMode)
+
     // 播放模式hooks
     const { modeIcon, changeMode } = useMode()
     // 收藏hooks
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
+    // cd hooks
+    const { cdCls, cdRef, cdImageRef } = useCd()
 
     // 播放列表
     const playList = computed(() => store.state.playList)
@@ -276,7 +297,11 @@ export default {
       changeMode,
       // favorite
       getFavoriteIcon,
-      toggleFavorite
+      toggleFavorite,
+      // cd
+      cdCls,
+      cdRef,
+      cdImageRef
     }
   }
 }
@@ -377,6 +402,9 @@ export default {
               .playing {
                 animation: rotate 20s linear infinite
               }
+              // .paused{
+              //   animation-play-state: paused;
+              // }
             }
           }
           .playing-lyric-wrapper {
