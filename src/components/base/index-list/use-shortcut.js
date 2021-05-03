@@ -1,17 +1,20 @@
 import { computed, ref } from 'vue'
 
 export default function useShortcut(props, groupRef) {
+  // 锚点高度
   const ANCHOR_HEIGHT = 18
   const scrollRef = ref(null)
+  // 所有的锚点
   const shortcutList = computed(() => {
     return props.data.map(group => {
       return group.title
     })
   })
-
   const touch = {}
 
+  // 手指按下
   function onShortCutTouchStart(e) {
+    // 获取锚点索引
     const anchorIndex = parseInt(e.target.dataset.index)
     touch.y1 = e.touches[0].pageY
     touch.anchorIndex = anchorIndex
@@ -19,6 +22,7 @@ export default function useShortcut(props, groupRef) {
     scrollTo(anchorIndex)
   }
 
+  // 手指移动
   function onShortCutTouchMove(e) {
     touch.y2 = e.touches[0].pageY
     // 向下取整
@@ -28,6 +32,7 @@ export default function useShortcut(props, groupRef) {
     scrollTo(anchorIndex)
   }
 
+  // 定位到对应锚点
   function scrollTo(index) {
     if (isNaN(index)) {
       return
