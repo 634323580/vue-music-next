@@ -1,7 +1,25 @@
 <template>
   <m-header></m-header>
   <tab></tab>
-  <router-view :style="viewStyle"></router-view>
+  <router-view
+    v-slot="{ Component }"
+    :style="viewStyle"
+  >
+    <keep-alive>
+      <component :is="Component"/>
+    </keep-alive>
+  </router-view>
+  <router-view
+    v-slot="{ Component }"
+    name="user"
+    :style="viewStyle"
+  >
+    <transition appear name="slide">
+      <keep-alive>
+        <component :is="Component"/>
+      </keep-alive>
+    </transition>
+  </router-view>
   <player></player>
 </template>
 <script>
