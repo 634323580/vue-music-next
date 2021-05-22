@@ -146,6 +146,7 @@ import useCd from './use-cd'
 import useLyric from './use-lyric'
 import useMiddleInteractive from './use-middle-interactive'
 import useAnimation from './use-animation'
+import usePlayHistory from './use-play-history'
 import ProgressBar from './progress-bar'
 import MiniPlayer from './mini-player'
 import { formatTime } from '@/assets/js/util'
@@ -189,6 +190,8 @@ export default {
     const { currentShow, middleLStyle, middleRStyle, onMiddleTouchStart, onMiddleTouchMove, onMiddleTouchEnd } = useMiddleInteractive()
     // 动画
     const { cdWrapper, enter, afterEnter, leave, afterLeave } = useAnimation()
+    // 播放历史
+    const { savePlay } = usePlayHistory()
     // 播放列表
     const playList = computed(() => store.state.playList)
 
@@ -313,6 +316,7 @@ export default {
       songReady.value = true
       console.log('ready')
       playLyric()
+      savePlay(currentSong.value)
     }
 
     function error() {

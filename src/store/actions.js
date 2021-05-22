@@ -43,8 +43,8 @@ export function removeSong({ commit, state }, song) {
   const sequenceList = state.sequenceList.slice()
   const playlist = state.playList.slice()
 
-  const sequenceIndex = finIndex(sequenceList, song)
-  const playIndex = finIndex(playlist, song)
+  const sequenceIndex = findIndex(sequenceList, song)
+  const playIndex = findIndex(playlist, song)
   if (sequenceIndex < 0 || playlist < 0) {
     return
   }
@@ -72,7 +72,32 @@ export function clearSongList({ commit }) {
   commit('setPlayingState', false)
 }
 
-function finIndex(list, song) {
+export function addSong({ commit, state }, song) {
+  const playlist = state.playList.slice()
+  const sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+  const playIndex = findIndex(playlist, song)
+
+  if (playIndex > -1) {
+    currentIndex = playIndex
+  } else {
+    playlist.push(song)
+    currentIndex = playlist.length - 1
+  }
+
+  const sequenceIndex = findIndex(sequenceList, song)
+  if (sequenceIndex === -1) {
+    sequenceList.push(song)
+  }
+
+  commit('setSequenceList', sequenceList)
+  commit('setPlayList', playlist)
+  commit('setCurrentIndex', currentIndex)
+  commit('setPlayingState', true)
+  commit('setFullScreen', true)
+}
+
+function findIndex(list, song) {
   return list.findIndex((item) => {
     return item.id === song.id
   })
