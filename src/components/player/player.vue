@@ -38,7 +38,7 @@
             :style="middleLStyle"
           >
             <div
-              ref="cdWrapper"
+              ref="cdWrapperRef"
               class="cd-wrapper">
               <div
                 ref="cdRef"
@@ -189,7 +189,7 @@ export default {
     const { currentLyric, currentLineNum, playLyric, stopLyric, lyricScrollRef, lyricListRef, pureMusicLyric, playingLyric } = useLyric({ songReady, currentTime })
     const { currentShow, middleLStyle, middleRStyle, onMiddleTouchStart, onMiddleTouchMove, onMiddleTouchEnd } = useMiddleInteractive()
     // 动画
-    const { cdWrapper, enter, afterEnter, leave, afterLeave } = useAnimation()
+    const { cdWrapperRef, enter, afterEnter, leave, afterLeave } = useAnimation()
     // 播放历史
     const { savePlay } = usePlayHistory()
     // 播放列表
@@ -404,7 +404,7 @@ export default {
       onMiddleTouchMove,
       onMiddleTouchEnd,
       // animation
-      cdWrapper,
+      cdWrapperRef,
       enter,
       afterEnter,
       leave,

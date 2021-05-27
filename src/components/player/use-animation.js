@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import animations from 'create-keyframe-animation'
 export default function useAnimation() {
-  const cdWrapper = ref(null)
+  const cdWrapperRef = ref(null)
   let entering = false
   let leaving = false
 
@@ -28,13 +28,13 @@ export default function useAnimation() {
         easing: 'cubic-bezier(0.45, 0, 0.55, 1)'
       }
     })
-    animations.runAnimation(cdWrapper.value, 'move', done)
+    animations.runAnimation(cdWrapperRef.value, 'move', done)
   }
 
   function afterEnter() {
     entering = false
     animations.unregisterAnimation('move')
-    cdWrapper.value.animation = null
+    cdWrapperRef.value.style.animation = ''
   }
 
   function leave(el, done) {
@@ -44,7 +44,7 @@ export default function useAnimation() {
     leaving = true
     const { x, y, scale } = getPosAndScale()
 
-    const cdWrapperEL = cdWrapper.value
+    const cdWrapperEL = cdWrapperRef.value
     cdWrapperEL.style.transition = 'all .6s cubic-bezier(0.45, 0, 0.55, 1)'
     cdWrapperEL.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
     cdWrapperEL.addEventListener('transitionend', next)
@@ -56,20 +56,26 @@ export default function useAnimation() {
 
   function afterLeave() {
     leaving = false
-    const cdWrapperEL = cdWrapper.value
+    const cdWrapperEL = cdWrapperRef.value
     cdWrapperEL.style.transition = ''
     cdWrapperEL.style.transform = ''
   }
 
   function getPosAndScale() {
+    // 小CD宽度
     const targetWidth = 40
+    // 小CD圆心left
     const paddingLeft = 40
+    // 小CD圆心bottom
     const paddingBottom = 30
+    // 大cd top
     const paddingTop = 80
+    // 大cd宽度
     const width = window.innerWidth * 0.8
+    // X偏移值，使大CD处在和小cd一样的位置
     const x = -(window.innerWidth / 2 - paddingLeft)
+    // Y偏移值，使大CD处在和小cd一样的位置
     const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
-    console.log(y)
     const scale = targetWidth / width
 
     return {
@@ -80,7 +86,7 @@ export default function useAnimation() {
   }
 
   return {
-    cdWrapper,
+    cdWrapperRef,
     enter,
     afterEnter,
     leave,
