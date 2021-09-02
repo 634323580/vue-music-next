@@ -34,3 +34,4 @@ createApp(App).use(store).use(router).use(lazyPlugin, {
 
 alert(66666)
 alert('我服了啊')
+alert('杀完提')
