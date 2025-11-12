@@ -20,5 +20,5 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
+### Customize co66666nfiguration
 See [Configuration Reference](https://cli.vuejs.org/config/).
